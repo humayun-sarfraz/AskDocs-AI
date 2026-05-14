@@ -32,7 +32,7 @@ export default function SourceReferences({ sources }: Props) {
           onClick={() => toggle(i)}
         >
           <span className="source-name">{src.filename}</span>
-          {src.page && <span>, page {src.page}</span>}
+          {src.page != null && <span>, page {src.page}</span>}
           {src.similarity != null && (
             <span style={{ marginLeft: 8, color: 'var(--text-muted)', fontSize: 11 }}>
               {(src.similarity * 100).toFixed(0)}% match

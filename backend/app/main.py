@@ -1,3 +1,5 @@
+import logging
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import init_db
@@ -11,7 +13,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,6 +26,9 @@ app.include_router(chat.router)
 @app.on_event("startup")
 def startup():
     init_db()
+    from app.config import OPENAI_API_KEY
+    if not OPENAI_API_KEY:
+        logging.warning("OPENAI_API_KEY is not set — document processing and chat will fail")
 
 
 @app.get("/api/health")

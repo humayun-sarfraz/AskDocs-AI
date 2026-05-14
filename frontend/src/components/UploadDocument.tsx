@@ -80,7 +80,7 @@ export default function UploadDocument({ onClose, onUploaded }: Props) {
             multiple
             accept=".pdf,.docx,.txt"
             style={{ display: 'none' }}
-            onChange={e => e.target.files && addFiles(e.target.files)}
+            onChange={e => { if (e.target.files) addFiles(e.target.files); e.target.value = ''; }}
           />
         </div>
 

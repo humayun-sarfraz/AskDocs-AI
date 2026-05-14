@@ -21,15 +21,17 @@ def split_text(pages: List[Dict], document_id: str, filename: str) -> List[Dict]
 
         split_texts = splitter.split_text(page_text)
         for text in split_texts:
+            metadata = {
+                "document_id": document_id,
+                "filename": filename,
+                "chunk_index": chunk_index,
+            }
+            if page_num is not None:
+                metadata["page"] = page_num
             chunks.append({
                 "chunk_id": f"{document_id}_chunk_{chunk_index}",
                 "text": text,
-                "metadata": {
-                    "document_id": document_id,
-                    "filename": filename,
-                    "page": page_num,
-                    "chunk_index": chunk_index,
-                },
+                "metadata": metadata,
             })
             chunk_index += 1
 

@@ -47,25 +47,32 @@ export interface ConversationDetail {
   messages: Message[];
 }
 
+async function parseError(res: Response, fallback: string): Promise<string> {
+  try {
+    const err = await res.json();
+    return err.detail || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export async function uploadDocument(file: File): Promise<DocumentInfo> {
   const formData = new FormData();
   formData.append('file', file);
   const res = await fetch(`${API_BASE}/documents/upload`, { method: 'POST', body: formData });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || 'Upload failed');
-  }
+  if (!res.ok) throw new Error(await parseError(res, 'Upload failed'));
   return res.json();
 }
 
 export async function getDocuments(): Promise<DocumentInfo[]> {
   const res = await fetch(`${API_BASE}/documents`);
+  if (!res.ok) throw new Error(await parseError(res, 'Failed to load documents'));
   return res.json();
 }
 
 export async function deleteDocument(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/documents/${id}`, { method: 'DELETE' });
-  if (!res.ok) throw new Error('Delete failed');
+  if (!res.ok) throw new Error(await parseError(res, 'Delete failed'));
 }
 
 export async function queryDocuments(
@@ -82,24 +89,23 @@ export async function queryDocuments(
       conversation_id: conversationId || undefined,
     }),
   });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || 'Query failed');
-  }
+  if (!res.ok) throw new Error(await parseError(res, 'Query failed'));
   return res.json();
 }
 
 export async function getConversations(): Promise<Conversation[]> {
   const res = await fetch(`${API_BASE}/chat/conversations`);
+  if (!res.ok) throw new Error(await parseError(res, 'Failed to load conversations'));
   return res.json();
 }
 
 export async function getConversation(id: string): Promise<ConversationDetail> {
   const res = await fetch(`${API_BASE}/chat/conversations/${id}`);
+  if (!res.ok) throw new Error(await parseError(res, 'Failed to load conversation'));
   return res.json();
 }
 
 export async function deleteConversation(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/chat/conversations/${id}`, { method: 'DELETE' });
-  if (!res.ok) throw new Error('Delete failed');
+  if (!res.ok) throw new Error(await parseError(res, 'Delete failed'));
 }

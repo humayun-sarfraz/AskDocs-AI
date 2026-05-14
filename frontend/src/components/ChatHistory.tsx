@@ -6,15 +6,19 @@ interface Props {
   activeId: string | null;
   onSelect: (id: string) => void;
   onNew: () => void;
-  onRefresh: () => void;
+  onDeleted: (id: string) => void;
 }
 
-export default function ChatHistory({ conversations, activeId, onSelect, onNew, onRefresh }: Props) {
+export default function ChatHistory({ conversations, activeId, onSelect, onNew, onDeleted }: Props) {
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     if (!confirm('Delete this conversation?')) return;
-    await deleteConversation(id);
-    onRefresh();
+    try {
+      await deleteConversation(id);
+      onDeleted(id);
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete conversation');
+    }
   };
 
   return (

@@ -6,14 +6,20 @@ interface Props {
   selectedIds: Set<string>;
   onToggleSelect: (id: string) => void;
   onRefresh: () => void;
+  onDocumentDeleted: (id: string) => void;
 }
 
-export default function DocumentList({ documents, selectedIds, onToggleSelect, onRefresh }: Props) {
+export default function DocumentList({ documents, selectedIds, onToggleSelect, onRefresh, onDocumentDeleted }: Props) {
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     if (!confirm('Delete this document?')) return;
-    await deleteDocument(id);
-    onRefresh();
+    try {
+      await deleteDocument(id);
+      onDocumentDeleted(id);
+      onRefresh();
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete document');
+    }
   };
 
   if (documents.length === 0) {

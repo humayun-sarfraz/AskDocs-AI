@@ -44,10 +44,15 @@ def query_documents(request: QueryRequest, db: Session = Depends(get_db)):
         db.add(conversation)
 
     # Run RAG pipeline
-    result = ask_question(
-        question=request.question,
-        document_ids=request.document_ids,
-    )
+    try:
+        result = ask_question(
+            question=request.question,
+            document_ids=request.document_ids,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to process question. Please try again.")
 
     # Save user message
     user_msg = Message(

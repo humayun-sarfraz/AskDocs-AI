@@ -22,7 +22,10 @@ def process_document(document_id: str, file_path: str, filename: str, db_url: st
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
 
-    engine = create_engine(db_url, connect_args={"check_same_thread": False})
+    connect_args = {}
+    if db_url.startswith("sqlite"):
+        connect_args["check_same_thread"] = False
+    engine = create_engine(db_url, connect_args=connect_args)
     SessionLocal = sessionmaker(bind=engine)
     db = SessionLocal()
 
@@ -59,7 +62,11 @@ def process_document(document_id: str, file_path: str, filename: str, db_url: st
         doc = db.query(Document).filter(Document.id == document_id).first()
         if doc:
             doc.status = "error"
-            doc.error_message = str(e)[:500]
+            error_msg = str(e)[:500]
+            from app.config import OPENAI_API_KEY
+            if OPENAI_API_KEY:
+                error_msg = error_msg.replace(OPENAI_API_KEY, "[REDACTED]")
+            doc.error_message = error_msg
             db.commit()
     finally:
         db.close()
@@ -71,6 +78,9 @@ async def upload_document(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Filename is required")
+
     content = await file.read()
     error = validate_file(file.filename, len(content))
     if error:

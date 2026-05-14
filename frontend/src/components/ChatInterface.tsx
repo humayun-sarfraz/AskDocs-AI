@@ -8,7 +8,7 @@ interface Props {
   conversationId: string | null;
   selectedDocIds: Set<string>;
   hasDocuments: boolean;
-  onNewMessage: (userMsg: Message, assistantMsg: Message, convId: string) => void;
+  onNewMessage: (userMsg: Message, assistantMsg: Message, convId: string | null) => void;
 }
 
 export default function ChatInterface({ messages, conversationId, selectedDocIds, hasDocuments, onNewMessage }: Props) {
@@ -64,7 +64,7 @@ export default function ChatInterface({ messages, conversationId, selectedDocIds
         content: `Error: ${err.message}`,
         timestamp: new Date().toISOString(),
       };
-      onNewMessage(userMsg, errMsg, conversationId || '');
+      onNewMessage(userMsg, errMsg, conversationId);
     } finally {
       setLoading(false);
     }

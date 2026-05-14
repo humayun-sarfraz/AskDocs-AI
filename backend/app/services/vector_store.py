@@ -84,5 +84,6 @@ def delete_document_chunks(document_id: str):
         existing = collection.get(where={"document_id": document_id})
         if existing["ids"]:
             collection.delete(ids=existing["ids"])
-    except Exception:
-        pass
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Failed to delete chunks for {document_id}: {e}")

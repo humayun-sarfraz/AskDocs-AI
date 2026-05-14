@@ -68,9 +68,9 @@ export default function App() {
     });
   };
 
-  const handleNewMessage = (userMsg: Message, assistantMsg: Message, convId: string) => {
+  const handleNewMessage = (userMsg: Message, assistantMsg: Message, convId: string | null) => {
     setMessages(prev => [...prev, userMsg, assistantMsg]);
-    setConversationId(convId);
+    if (convId) setConversationId(convId);
     refreshConversations();
   };
 
@@ -99,6 +99,13 @@ export default function App() {
             selectedIds={selectedDocIds}
             onToggleSelect={handleToggleDoc}
             onRefresh={refreshDocuments}
+            onDocumentDeleted={(id) => {
+              setSelectedDocIds(prev => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+              });
+            }}
           />
         </div>
 
@@ -112,9 +119,9 @@ export default function App() {
             activeId={conversationId}
             onSelect={handleSelectConversation}
             onNew={handleNewChat}
-            onRefresh={() => {
+            onDeleted={(id) => {
               refreshConversations();
-              if (conversationId) {
+              if (conversationId === id) {
                 handleNewChat();
               }
             }}
