@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+*.db
+chroma/
+storage/uploads/*
+!storage/uploads/.gitkeep
+node_modules/
+package-lock.json
+dist/
+.vite/
